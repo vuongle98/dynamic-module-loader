@@ -216,7 +216,7 @@ The project follows Java library best practices with a simple, flat package stru
 
 ## Requirements
 
-- JDK 17+
+- JDK 21+
 
 ## License
 
