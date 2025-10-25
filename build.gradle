@@ -1,7 +1,6 @@
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.4.5'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'java-library'
+    id 'maven-publish'
 }
 
 group = 'org.vuong'
@@ -9,8 +8,10 @@ version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
+    withSourcesJar()
+    withJavadocJar()
 }
 
 configurations {
@@ -24,19 +25,34 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-//    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//
-//    implementation 'org.postgresql:postgresql'
-
     implementation 'org.codehaus.janino:janino:3.1.3'
 
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// Ensure tests run on a JDK (not a JRE) so javax.tools JavaCompiler is available
+tasks.withType(Test).configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+// No exclusions needed - all Spring Boot files have been removed
+
+publishing {
+    publications {
+        create('mavenJava', MavenPublication) {
+            from components.java
+            artifactId = 'dynamic-module-loader'
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }
